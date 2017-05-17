@@ -5,6 +5,7 @@
   become: yes
   register: keystone_paste_admin_token
   failed_when: "keystone_paste_admin_token.rc > 1"
+  check_mode: no
   changed_when: no
 
 - name: remove most admin_token_auth from keystone-paste.ini
