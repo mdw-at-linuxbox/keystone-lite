@@ -1,0 +1,35 @@
+---
+# install host certs.
+
+- name: see if host cert present
+  stat:
+    path: /etc/keystone/private/{{ inventory_hostname_short }}.pem
+  become: yes
+  register: host_cert
+
+- name: see if host key present
+  stat:
+    path: /etc/keystone/private/{{ inventory_hostname_short }}.key
+  become: yes
+  register: host_key
+
+- name: make keystone private directory for certs
+  file:
+    path: /etc/keystone/private
+    state: directory
+    mode: 0750
+    owner: root
+    group: keystone
+  become: yes
+  when: not host_cert.stat.exists or not host_key.stat.exists
+
+- name: untar host certs tarball
+  unarchive:
+    src: "{{ host_certs }}"
+    dest: /etc/keystone/private
+    exclude: ca.pem
+    owner: root
+    group: keystone
+    mode: 0640
+  become: yes
+  when: not host_cert.stat.exists or not host_key.stat.exists

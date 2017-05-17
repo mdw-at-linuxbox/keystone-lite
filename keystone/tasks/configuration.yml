@@ -1,22 +1,4 @@
 ---
 
-- name: add keystone public
-  firewalld:
-    port: 5000/tcp
-    permanent: true
-    state: enabled
-  become: yes
-  register: keystone_public
-
-- name: add keystone admin
-  firewalld:
-    port: 35357/tcp
-    permanent: true
-    state: enabled
-  become: yes
-  register: keystone_admin
-
-- name: reload firewalld
-  command: firewall-cmd --reload
-  become: yes
-  when: keystone_admin.changed or keystone_public.changed
+- include: firewall.yml
+- include: hostcerts.yml
