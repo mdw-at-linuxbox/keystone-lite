@@ -36,32 +36,3 @@
     insertafter: '^\[token]$'
     line: provider = fernet
   become: yes
-
-- name: install cherrypy_wsgi script
-  copy:
-    src: cherrypy_wsgi
-    dest: /usr/local/libexec/cherrypy_wsgi
-    mode: 0755
-  become: yes
-
-- name: keystone runtime defaults
-  blockinfile:
-    dest: /etc/sysconfig/keystone
-    create: yes
-    block: |
-      HTTP_OPTS=-c /etc/keystone/private/{{ inventory_hostname_short }}.pem -k /etc/keystone/private/{{ inventory_hostname_short }}.key
-      PUBLIC_OPTS=-p 5000 -w /usr/bin/keystone-wsgi-public -l /var/log/keystone/public.log
-      ADMIN_OPTS=-p 35357 -w /usr/bin/keystone-wsgi-admin -l /var/log/keystone/admin.log
-      #KEYSTONE_OPTS=
-  become: yes
-
-- name: systemd scripts
-  copy:
-    src: "{{ item }}"
-    dest: "/usr/lib/systemd/system/{{ item }}"
-    mode: 0755
-  become: yes
-  with_items:
-    - keystone-admin.service
-    - keystone-public.service
-    - keystone.target

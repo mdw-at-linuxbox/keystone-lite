@@ -1,0 +1,8 @@
+---
+
+- name: install cherrypy_wsgi script
+  copy:
+    src: cherrypy_wsgi
+    dest: /usr/local/libexec/cherrypy_wsgi
+    mode: 0755
+  become: yes

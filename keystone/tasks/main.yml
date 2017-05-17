@@ -3,6 +3,7 @@
 
 - include: ssl.yml
 - include: packages.yml
+- include: cherrypy_wsgi.yml
 - include: configuration.yml
 
 - meta: flush_handlers
