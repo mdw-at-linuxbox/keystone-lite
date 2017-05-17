@@ -1,0 +1,20 @@
+---
+
+- name: check if openstack repo already configured.
+  stat: path={{ openstack_repo_path }}
+  register: openstack_repo_result
+
+- name: Install openstack repo
+  yum:
+    name: "{{ openstack_repo_package }}"
+    state: present
+  become: yes
+  register: present
+  when: not openstack_repo_result.stat.exists
+
+- name: import openstack gpg key
+  rpm_key:
+    key: "{{ openstack_gpg_key_path }}"
+    state: present
+  become: yes
+  when: not openstack_repo_result.stat.exists

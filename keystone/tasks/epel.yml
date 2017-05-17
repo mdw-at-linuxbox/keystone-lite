@@ -1,0 +1,21 @@
+---
+# ref http://yallalabs.com/linux/how-to-install-epel-repository-with-ansible-on-centos-7-rhel-7/
+
+- name: check if epel already configured.
+  stat: path={{ epel_repofile_path }}
+  register: epel_repofile_result
+
+- name: Install epel
+  yum:
+    name: "{{ epel_repo_url }}"
+    state: present
+  become: yes
+  register: present
+  when: not epel_repofile_result.stat.exists
+
+- name: import EPEL gpg key
+  rpm_key:
+    key: "{{ epel_repo_gpg_key_url }}"
+    state: present
+  become: yes
+  when: not epel_repofile_result.stat.exists

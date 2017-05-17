@@ -1,0 +1,12 @@
+---
+
+- name: Install memcached
+  become: yes
+  yum: name="{{ item }}" state=present
+  with_items:
+  - memcached
+  - python-memcached
+
+- name: Start memcached
+  become: yes
+  service: name=memcached state=started enabled=yes

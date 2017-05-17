@@ -1,0 +1,7 @@
+---
+#
+
+- hosts: keystone
+  roles:
+  - role: keystone
+...

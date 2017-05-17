@@ -1,0 +1,14 @@
+---
+# ref http://yallalabs.com/linux/how-to-install-epel-repository-with-ansible-on-centos-7-rhel-7/
+
+- name: check if local ca configured
+  stat: path={{ local_ca_path }}
+  register: local_ca_result
+
+- name: Install local ca cert
+  yum:
+    name: "{{ local_ca_package }}"
+    state: present
+  become: yes
+  register: present
+  when: not local_ca_result.stat.exists
