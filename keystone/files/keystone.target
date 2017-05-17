@@ -1,0 +1,5 @@
+[Unit]
+Description=Keystone public service
+Requires=keystone-admin.service keystone-public.service
+[Install]
+WantedBy=multi-user.target

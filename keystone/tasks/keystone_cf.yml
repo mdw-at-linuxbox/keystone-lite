@@ -1,0 +1,66 @@
+---
+
+- name: check for distribution case of admin_token_auth
+  command: egrep -q admin_token_auth /etc/keystone/keystone-paste.ini
+  become: yes
+  register: keystone_paste_admin_token
+  failed_when: "keystone_paste_admin_token.rc > 1"
+  changed_when: no
+
+- name: remove most admin_token_auth from keystone-paste.ini
+  replace:
+    dest: /etc/keystone/keystone-paste.ini
+    regexp: ' admin_token_auth '
+    replace: ' '
+  become: yes
+  when: keystone_paste_admin_token.rc == 0
+
+- name: remove rest of admin_token_auth from keystone-paste.ini
+  replace:
+    dest: /etc/keystone/keystone-paste.ini
+    regexp: '^.filter:admin_token_auth(?:.|\n)*#admin_token_auth\n\n'
+  become: yes
+  when: keystone_paste_admin_token.rc == 0
+
+- name: set keystone db type, location
+  lineinfile:
+    dest: /etc/keystone/keystone.conf
+    insertafter: '^\[database]$'
+    line: connection = sqlite:////var/lib/keystone/keystone.db
+  become: yes
+
+- name: configure for fernet
+  lineinfile:
+    dest: /etc/keystone/keystone.conf
+    insertafter: '^\[token]$'
+    line: provider = fernet
+  become: yes
+
+- name: install cherrypy_wsgi script
+  copy:
+    src: cherrypy_wsgi
+    dest: /usr/local/libexec/cherrypy_wsgi
+    mode: 0755
+  become: yes
+
+- name: keystone runtime defaults
+  blockinfile:
+    dest: /etc/sysconfig/keystone
+    create: yes
+    block: |
+      HTTP_OPTS=-c /etc/keystone/private/{{ inventory_hostname_short }}.pem -k /etc/keystone/private/{{ inventory_hostname_short }}.key
+      PUBLIC_OPTS=-p 5000 -w /usr/bin/keystone-wsgi-public -l /var/log/keystone/public.log
+      ADMIN_OPTS=-p 35357 -w /usr/bin/keystone-wsgi-admin -l /var/log/keystone/admin.log
+      #KEYSTONE_OPTS=
+  become: yes
+
+- name: systemd scripts
+  copy:
+    src: "{{ item }}"
+    dest: "/usr/lib/systemd/system/{{ item }}"
+    mode: 0755
+  become: yes
+  with_items:
+    - keystone-admin.service
+    - keystone-public.service
+    - keystone.target

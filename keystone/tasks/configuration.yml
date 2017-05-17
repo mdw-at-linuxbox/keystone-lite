@@ -2,3 +2,4 @@
 
 - include: firewall.yml
 - include: hostcerts.yml
+- include: keystone_cf.yml

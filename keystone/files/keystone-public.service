@@ -1,0 +1,9 @@
+[Unit]
+Description=Keystone public service
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/keystone
+ExecStart=/usr/local/libexec/cherrypy_wsgi $PUBLIC_OPTS $HTTP_OPTS -- $KEYSTONE_OPTS
+User=keystone
+Group=keystone

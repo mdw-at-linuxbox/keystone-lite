@@ -1,0 +1,130 @@
+#!/usr/bin/python
+from cherrypy import wsgiserver
+import cherrypy
+#from cherrypy.wsgiserver import WSGIPathInfoDispatcher
+from cherrypy.wsgiserver.ssl_builtin import BuiltinSSLAdapter
+import threading, time
+from BaseHTTPServer import BaseHTTPRequestHandler
+import StringIO
+import sys, getopt, os, traceback
+
+configuration = {}
+
+# see web/httpserver.py
+class MyLogStuff:
+    def __init__(self, app):
+	self.access_fd = None
+	self.app = app
+	self.format = '%s - - [%s] "%s %s %s" - %s'
+	f = StringIO.StringIO()
+	class FakeSocket:
+	    def makefile(self, *a):
+	        return f
+	self.log_date_time_string = BaseHTTPRequestHandler(FakeSocket(), None, None).log_date_time_string
+	if configuration.has_key('access_log'):
+	    self.access_fd = open(configuration['access_log'], "a")
+    def __call__(self, e, sr):
+	def xsr(s, rh, *args):
+	    out = sr(s, rh, *args)
+	    self.log(s, e)
+	    return out
+	return self.app(e, xsr)
+    def log(self, stat, e):
+	if self.access_fd is None:
+	    return
+	req = e.get('PATH_INFO', '_')
+	proto = e.get('ACTUAL_SERVER_PROTOCOl', '-')
+	method = e.get('REQUEST_METHOD', '-')
+	host = "%s:%s" % (e.get('REMOTE_ADDR', '-'), e.get('REMOTE_PORT', '-'))
+	time = self.log_date_time_string()
+	msg = self.format % (host, time, proto, method, req, stat)
+        print >> self.access_fd, msg
+	self.access_fd.flush()
+
+class WsgiApplication(threading.Thread):
+    def __init__(self):
+	super(WsgiApplication,self).__init__()
+	try:
+	    v={}
+	    execfile(configuration['wsgi_script'], v)
+	    d=v['application']
+	except Exception as e:
+	    print >>sys.stderr, (traceback.format_exc())
+	    print >>sys.stderr, "WsgiApplication initialize failed - %s" % (e)
+	    return
+	finally:
+	    pass
+	self.d = MyLogStuff(d)
+    def run(self):
+	self.server = wsgiserver.CherryPyWSGIServer(('0.0.0.0',
+	    configuration['port']),
+	    self.d)
+	if configuration.has_key('ssl_certificate'):
+	    self.server.ssl_adapter = BuiltinSSLAdapter(
+		configuration['ssl_certificate'],
+		configuration['ssl_private_key'])
+	self.server.start()
+    def stop(self):
+	# try to catch stop w/o run
+	try:
+	    self.server.stop()
+	except NameError as e:
+	    pass
+
+def main(argv):
+#    cherrypy.config.update({'log.error_file': Web.log,
+#	'log.access_file': Access.log})
+    try:
+	opts, args = getopt.getopt(argv, "w:p:c:k:l:",["wsgi_script=",
+		"port=","certificate=","key=", "access_log="])
+    except getopt.GetoptError:
+	print >>sys.stderr, 'k3.py -w script -p port [-c cert -k key] [ -- script_args ]'
+	return 1
+    for opt, arg in opts:
+	if opt in ("-w", "--wsgi_script"):
+	    configuration['wsgi_script'] = arg
+	elif opt in ("-p", "--port"):
+	    configuration['port'] = int(arg)
+	elif opt in ("-c", "--certificate"):
+	    if arg != "":
+		configuration['ssl_certificate'] = arg
+	    else:
+		try:
+		    del configuration['ssl_certificate']
+		except KeyError as e:
+		    pass
+	elif opt in ("-k", "--key"):
+	    if arg != "":
+		configuration['ssl_private_key'] = arg
+	    else:
+		try:
+		    del configuration['ssl_private_key']
+		except KeyError as e:
+		    pass
+	elif opt in ("-l", "--access_log"):
+	    if arg != "":
+		configuration['access_log'] = arg
+	    else:
+		try:
+		    del configuration['access_log']
+		except KeyError as e:
+		    pass
+    sys.argv[1:] = args
+    if not configuration.has_key('wsgi_script') or not configuration.has_key('port'):
+	print >>sys.stderr, "Missing required configuration -w -p"
+	sys.exit(1)
+    t = WsgiApplication()
+    t.start()
+    should_stop = False
+    try:
+	while not should_stop:
+	    time.sleep(60)
+	    pass
+    except (KeyboardInterrupt, SystemExit):
+	should_stop = True
+    finally:
+	t.stop()
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
