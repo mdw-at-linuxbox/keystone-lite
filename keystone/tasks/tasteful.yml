@@ -1,12 +1,13 @@
 ---
 
 - name: Install tasteful subset of the usual utilities
-  yum: name="{{ item }}" state=present
+  yum:
+        name: [ dmidecode, dump, ed, eject, finger, ftp, groff, hdparm,
+          lsof, mailx, man, nc, ntp, parted, pax, rdate, rsync, sos,
+          tcpdump, traceroute, time, wget, words, yum-plugin-downloadonly,
+          yum-plugin-keys, yum-plugin-local, yum-plugin-verify, pciutils,
+          lynx, mlocate, xterm, xauth, strace, tar, sysstat, net-tools,
+          bc, gdb, rcs, bind-utils, yum-utils ]
+        state: present
   become: yes
   tags: tasteful-rpms
-  with_items: [
-    dmidecode, dump, ed, eject, finger, ftp, groff, hdparm, lsof, mailx, man,
-    nc, ntp, parted, pax, rdate, rsync, sos, tcpdump, traceroute, time, wget,
-    words, yum-plugin-downloadonly, yum-plugin-keys, yum-plugin-local,
-    yum-plugin-verify, pciutils, lynx, mlocate, xterm, xauth, strace, tar,
-    sysstat, net-tools, bc, gdb, rcs, bind-utils, yum-utils ]
