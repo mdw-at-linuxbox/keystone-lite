@@ -1,0 +1,13 @@
+---
+
+- name: Remove keystone packages
+  yum:
+        name:
+        - memcached
+        - python-memcached
+        - openstack-keystone
+        - python-openstackclient
+        - python-cherrypy
+        - centos-release-openstack-ocata
+        state: absent
+  become: yes

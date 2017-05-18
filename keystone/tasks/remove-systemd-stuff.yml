@@ -1,0 +1,13 @@
+---
+
+- name: remove systemd files
+  file:
+    path: "{{ item }}"
+    state: absent
+  become: yes
+  with_items:
+        - /usr/local/libexec/cherrypy_wsgi
+        - /etc/sysconfig/keystone
+        - /usr/lib/systemd/system/keystone-admin.service
+        - /usr/lib/systemd/system/keystone-public.service
+        - /usr/lib/systemd/system/keystone.target

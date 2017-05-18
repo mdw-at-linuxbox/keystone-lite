@@ -1,0 +1,16 @@
+---
+
+- name: remove keystone user
+  user:
+    name: keystone
+    state: absent
+  become: yes
+
+- name: remove keystone data files
+  file:
+    path: "{{ item }}"
+    state: absent
+  become: yes
+  with_items:
+        - /etc/keystone
+        - /var/lib/keystone

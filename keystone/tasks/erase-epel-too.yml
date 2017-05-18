@@ -1,0 +1,9 @@
+---
+
+- name: Remove epel repository too
+  yum:
+     name:
+       epel-release-7
+     state: absent
+  tags: epel
+  become: yes

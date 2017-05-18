@@ -1,0 +1,5 @@
+---
+
+- name: Start keystone
+  become: yes
+  systemd: name=keystone.target state=started enabled=yes

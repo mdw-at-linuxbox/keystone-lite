@@ -1,0 +1,7 @@
+---
+
+- name: Remove ca cert package
+  yum:
+    name: "{{ local_ca_package | regex_replace('.*/', '') | regex_replace('\\.rpm$', '') }}"
+    state: absent
+  become: yes

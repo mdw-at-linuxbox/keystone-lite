@@ -1,0 +1,22 @@
+---
+
+- name: remove keystone public firewall rule
+  firewalld:
+    port: 5000/tcp
+    permanent: true
+    state: disabled
+  become: yes
+  register: keystone_public
+
+- name: remove keystone admin firewall rule
+  firewalld:
+    port: 35357/tcp
+    permanent: true
+    state: disabled
+  become: yes
+  register: keystone_admin
+
+- name: reload firewalld
+  command: firewall-cmd --reload
+  become: yes
+  when: keystone_admin.changed or keystone_public.changed

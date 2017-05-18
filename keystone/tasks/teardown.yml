@@ -1,0 +1,12 @@
+---
+# restore machine to a (mostly) pristine state
+
+- include: stop.yml
+- include: remove-systemd-stuff.yml
+- include: restore-firewall.yml
+- include: erase-keystone-stuff.yml
+- include: erase-ca-cert.yml
+- include: erase-keystone-iam.yml
+- include: erase-python-dependencies.yml
+- include: erase-epel-too.yml
+#- meta: flush_handlers

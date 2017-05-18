@@ -1,0 +1,8 @@
+---
+#
+
+- name: teardown keystone
+  hosts: keystone
+  tasks:
+    - include_role: name=keystone tasks_from=teardown
+...

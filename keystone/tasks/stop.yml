@@ -1,0 +1,62 @@
+---
+
+## It turns out to be important to see if task
+##  is running before stopping it.  Later steps
+##  remove the unit and you can't stop a unit
+##  that has been removed (so we lose idempotency)
+
+- name: validate keystone target link
+  stat: path=/etc/systemd/system/multi-user.target.wants/keystone.target
+  register: keystone_target_link
+
+- name: Check if keystone target still running
+  become: yes
+  command: systemctl is-active -q keystone.target
+  check_mode: no
+  failed_when: no
+  changed_when: no
+  register: keystone_target
+
+- name: Stop keystone
+  become: yes
+  systemd: name=keystone.target state=stopped enabled=no
+  when: keystone_target.rc == 0 or keystone_target_link.stat.exists
+
+- name: Check if keystone public still running
+  become: yes
+  command: systemctl is-active -q keystone-public.service
+  check_mode: no
+  failed_when: no
+  changed_when: no
+  register: keystone_public
+
+- name: Stop keystone public
+  become: yes
+  systemd: name=keystone-public.service state=stopped enabled=no
+  when: keystone_public.rc == 0
+
+- name: Check if keystone admin still running
+  become: yes
+  command: systemctl is-active -q keystone-admin.service
+  check_mode: no
+  failed_when: no
+  changed_when: no
+  register: keystone_admin
+
+- name: Stop keystone admin
+  become: yes
+  systemd: name=keystone-admin.service state=stopped enabled=no
+  when: keystone_admin.rc == 0
+
+- name: Check if memcached still running
+  become: yes
+  command: systemctl is-active -q memcached.service
+  check_mode: no
+  failed_when: no
+  changed_when: no
+  register: memcached
+
+- name: Stop memcached
+  become: yes
+  service: name=memcached state=stopped enabled=no
+  when: memcached.rc == 0
