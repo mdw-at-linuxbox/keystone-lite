@@ -6,6 +6,7 @@
   register: keystone_paste_admin_token
   failed_when: "keystone_paste_admin_token.rc > 1"
   check_mode: no
+  ignore_errors: "{{ ansible_check_mode }}"
   changed_when: no
 
 - name: remove most admin_token_auth from keystone-paste.ini
@@ -29,6 +30,7 @@
     insertafter: '^\[database]$'
     line: connection = sqlite:////var/lib/keystone/keystone.db
   become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: configure for fernet
   lineinfile:
@@ -36,3 +38,4 @@
     insertafter: '^\[token]$'
     line: provider = fernet
   become: yes
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -32,6 +32,7 @@
   command: keystone-manage db_sync
   become: yes
   become_user: keystone
+  ignore_errors: "{{ ansible_check_mode }}"
   when: not keystone_db.stat.exists or "{{ keystone_endpoint_count.failed | default('') }}" == "True"
 
 - name: keystone fernet_setup
@@ -53,4 +54,5 @@
         --bootstrap-region-id RegionOne
   become: yes
   become_user: keystone
+  ignore_errors: "{{ ansible_check_mode }}"
   when: not keystone_db.stat.exists or "{{ keystone_endpoint_count.stdout | default('') | trim }}" != "3"

@@ -16,3 +16,4 @@
   with_items:
   - openstack-keystone
   - python-openstackclient
+  ignore_errors: "{{ ansible_check_mode }}"

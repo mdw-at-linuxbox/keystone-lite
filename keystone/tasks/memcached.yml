@@ -1,5 +1,7 @@
 ---
 
+# can't start/stop service if unit file not present.
+
 - name: Install memcached
   become: yes
   yum: name="{{ item }}" state=present
@@ -10,3 +12,4 @@
 - name: Start memcached
   become: yes
   service: name=memcached state=started enabled=yes
+  ignore_errors: "{{ ansible_check_mode }}"
