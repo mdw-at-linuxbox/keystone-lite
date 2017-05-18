@@ -1,0 +1,56 @@
+---
+
+- name: keystone db exists?
+  stat: path=/var/lib/keystone/keystone.db
+  register: keystone_db
+  become: yes
+  check_mode: no
+
+- name: keystone fernet-keys exists?
+  stat: path=/etc/keystone/fernet-keys/0
+  register: keystone_fernet
+  become: yes
+  check_mode: no
+
+- name: keystone credential-keys exists?
+  stat: path=/etc/keystone/credential-keys/0
+  register: keystone_credential
+  become: yes
+  check_mode: no
+
+- name: get keystone endpoint count
+  script: getendpoint.py
+  register: keystone_endpoint_count
+  become: yes
+  become_user: keystone
+  ignore_errors: yes
+  changed_when: no
+  check_mode: no
+  when: keystone_db.stat.exists
+
+- name: keystone db_sync
+  command: keystone-manage db_sync
+  become: yes
+  become_user: keystone
+  when: not keystone_db.stat.exists or "{{ keystone_endpoint_count.failed | default('') }}" == "True"
+
+- name: keystone fernet_setup
+  command: keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+  become: yes
+  when: not keystone_fernet.stat.exists
+
+- name: keystone credential_setup
+  command: keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+  become: yes
+  when: not keystone_credential.stat.exists
+
+- name: keystone bootstrap
+  command: keystone-manage bootstrap
+        --bootstrap-password "{{ keystone_admin_password }}"
+        --bootstrap-admin-url "https://{{ ansible_fqdn }}:35357/v3/"
+        --bootstrap-internal-url "https://{{ ansible_fqdn }}:5000/v3/"
+        --bootstrap-public-url "https://{{ ansible_fqdn }}:5000/v3/"
+        --bootstrap-region-id RegionOne
+  become: yes
+  become_user: keystone
+  when: not keystone_db.stat.exists or "{{ keystone_endpoint_count.stdout | default('') | trim }}" != "3"

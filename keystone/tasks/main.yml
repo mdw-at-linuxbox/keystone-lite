@@ -8,6 +8,8 @@
 
 - meta: flush_handlers
 
+- include: bootstrap.yml
+
 #- include: start.yml
 
 #- include: tenants.yml
