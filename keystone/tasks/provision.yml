@@ -2,9 +2,9 @@
 ## needs shade 1.8 or better, on the control node.
 ##  I'm using shade 1.20 on degu. (degu:~mdw/wp/python.17)
 
-- name: add project
+- name: add projects
   os_project:
-     auth: &awsome_stuff
+     auth: &awesome_stuff
         auth_url: https://{{ ansible_fqdn }}:5000/v3/
         username: admin
         password: "{{ keystone_admin_password }}"
@@ -12,28 +12,46 @@
      state: "{{ item.state | default(omit) }}"
      name: "{{ item.name }}"
      description: "{{ item.description | default(omit) }}"
-     domain_id: "{{ item.domain_id | default(omit) }}"
+     domain_id: "{{ item.domain_id | default('default') }}"
+     enabled: "{{ item.enabled | default(omit) }}"
      validate_certs: yes
   delegate_to: 127.0.0.1
   with_items: "{{ openstack_keystone_projects }}"
 
-#  os_user:
-#? cloud ?
-#    auth:
-#      auth_url: https:
-#      username: admin
-#      password: xxx
-#      project_name: xxx
-#? domain ?
-#    state: present
-#    name: demo
-#    password: xxx
-#    update_password: on_create
-#    domain: Default
-#    validate_certs: yes
-#    default_project: demo
-#** password
-#*** auth_url
-#*** username
-#*** password
-#*** project_name
+- name: add users
+  os_user:
+     auth:
+      <<: *awesome_stuff
+     state: "{{ item.state | default(omit) }}"
+     name: "{{ item.name }}"
+     domain: "{{ item.domain | default('default') }}"
+     enabled: "{{ item.enabled | default(omit) }}"
+     password: "{{ item.password }}"
+     update_password: "{{ item.update_password | default('on_create') }}"
+     validate_certs: yes
+  delegate_to: 127.0.0.1
+  with_items: "{{ openstack_keystone_users }}"
+
+- name: add roles
+  os_keystone_role:
+     auth:
+      <<: *awesome_stuff
+     state: "{{ item.state | default(omit) }}"
+     name: "{{ item.name }}"
+     validate_certs: yes
+  delegate_to: 127.0.0.1
+  with_items: "{{ openstack_keystone_roles }}"
+
+- name: add users to roles
+  os_user_role:
+     auth:
+      <<: *awesome_stuff
+     state: "{{ item.state | default(omit) }}"
+     user: "{{ item.user | default(omit) }}"
+     group: "{{ item.group | default(omit) }}"
+     role: "{{ item.role }}"
+     project: "{{ item.project }}"
+     domain: "{{ item.domain | default(omit) }}"
+     validate_certs: yes
+  delegate_to: 127.0.0.1
+  with_items: "{{ openstack_keystone_user_roles }}"

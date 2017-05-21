@@ -11,4 +11,12 @@ keystone_admin_password: 'something clever'
 openstack_keystone_projects:
  - name: demo
    description: "Demo Project"
-   domain_id: default
+openstack_keystone_users:
+ - name: demo
+   password: 'something clever'
+openstack_keystone_roles:
+ - name: user
+openstack_keystone_user_roles:
+ - user: demo
+   role: user
+   project: demo
