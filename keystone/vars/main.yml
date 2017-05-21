@@ -8,3 +8,7 @@ openstack_gpg_key_path: /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud
 openstack_repo_path: /etc/yum.repos.d/CentOS-OpenStack-ocata.repo
 host_certs: /home/mdw/t/thyestes-certs
 keystone_admin_password: 'something clever'
+openstack_keystone_projects:
+ - name: demo
+   description: "Demo Project"
+   domain_id: default

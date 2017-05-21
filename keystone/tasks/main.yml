@@ -1,6 +1,7 @@
 ---
 - meta: flush_handlers
 
+- include: selinux.yml
 - include: ssl.yml
 - include: packages.yml
 - include: cherrypy_wsgi.yml
@@ -11,5 +12,6 @@
 - include: bootstrap.yml
 
 - include: start.yml
+- include: provision.yml
 
 #- include: tenants.yml
