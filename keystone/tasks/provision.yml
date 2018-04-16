@@ -3,19 +3,24 @@
 ##  I'm using shade 1.20 on degu. (degu:~mdw/wp/python.17)
 
 - name: add projects
+  tags: ap
   os_project:
      auth: &awesome_stuff
         auth_url: https://{{ ansible_fqdn }}:5000/v3/
         username: admin
         password: "{{ keystone_admin_password }}"
         project_name: admin
+        user_domain_name: "Default"
+        project_domain_name: "Default"
+# SHOULD work, but instead hafta export OS_IDENTITY_API_VERSION=3
+#        identity_api_version: 3
      state: "{{ item.state | default(omit) }}"
      name: "{{ item.name }}"
      description: "{{ item.description | default(omit) }}"
      domain_id: "{{ item.domain_id | default('default') }}"
      enabled: "{{ item.enabled | default(omit) }}"
      validate_certs: yes
-  delegate_to: 127.0.0.1
+  delegate_to: localhost
   with_items: "{{ openstack_keystone_projects }}"
 
 - name: add users
@@ -29,7 +34,7 @@
      password: "{{ item.password }}"
      update_password: "{{ item.update_password | default('on_create') }}"
      validate_certs: yes
-  delegate_to: 127.0.0.1
+  delegate_to: localhost
   with_items: "{{ openstack_keystone_users }}"
 
 - name: add roles
@@ -39,7 +44,7 @@
      state: "{{ item.state | default(omit) }}"
      name: "{{ item.name }}"
      validate_certs: yes
-  delegate_to: 127.0.0.1
+  delegate_to: localhost
   with_items: "{{ openstack_keystone_roles }}"
 
 - name: add users to roles
@@ -53,5 +58,5 @@
      project: "{{ item.project }}"
      domain: "{{ item.domain | default(omit) }}"
      validate_certs: yes
-  delegate_to: 127.0.0.1
+  delegate_to: localhost
   with_items: "{{ openstack_keystone_user_roles }}"
