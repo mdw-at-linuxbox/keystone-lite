@@ -1,5 +1,10 @@
 ---
 
+- name: see if firewalld running
+  command: systemctl show firewalld  --property=ActiveState
+  register: firewalld_running
+  changed_when: no
+
 - name: add keystone public
   firewalld:
     port: 5000/tcp
@@ -19,4 +24,6 @@
 - name: reload firewalld
   command: firewall-cmd --reload
   become: yes
-  when: keystone_admin.changed or keystone_public.changed
+  when:
+  - keystone_admin.changed or keystone_public.changed
+  - firewalld_running.stdout is search('=active')
