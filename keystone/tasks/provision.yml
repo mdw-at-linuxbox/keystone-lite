@@ -6,7 +6,7 @@
   tags: ap
   os_project:
      auth: &awesome_stuff
-        auth_url: https://{{ ansible_fqdn }}:5000/v3/
+        auth_url: "{{ keystone_method }}://{{ keystone_fqdn }}:5000/v3/"
         username: admin
         password: "{{ keystone_admin_password }}"
         project_name: admin
@@ -20,6 +20,7 @@
      domain_id: "{{ item.domain_id | default('default') }}"
      enabled: "{{ item.enabled | default(omit) }}"
      validate_certs: yes
+  environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_projects }}"
 
@@ -34,6 +35,7 @@
      password: "{{ item.password }}"
      update_password: "{{ item.update_password | default('on_create') }}"
      validate_certs: yes
+  environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_users }}"
 
@@ -44,6 +46,7 @@
      state: "{{ item.state | default(omit) }}"
      name: "{{ item.name }}"
      validate_certs: yes
+  environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_roles }}"
 
@@ -58,5 +61,6 @@
      project: "{{ item.project }}"
      domain: "{{ item.domain | default(omit) }}"
      validate_certs: yes
+  environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_user_roles }}"

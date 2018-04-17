@@ -1,6 +1,0 @@
----
-- name: fail if OS_IDENTITY_API_VERSION is not set.
-  fail:
-    msg: 'OS_IDENTITY_API_VERSION must be set, probably to 3'
-  when: 
-   lookup('env', 'OS_IDENTITY_API_VERSION') is not defined or lookup('env', 'OS_IDENTITY_API_VERSION') == ''

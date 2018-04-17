@@ -1,7 +1,6 @@
 ---
 - meta: flush_handlers
 
-- include: check_required_stuff.yml
 - include: selinux.yml
 - include: ssl.yml
 - include: packages.yml
