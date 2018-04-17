@@ -1,5 +1,14 @@
 ---
 
+- name: check selinux state
+  command: /sbin/getenforce
+  register: selinux_state
+  check_mode: no
+  changed_when: no
+
 - name: disable selinux
   selinux: policy=targeted state=permissive
-  when: ansible_os_family == 'RedHat'
+  become: true
+  when:
+  - ansible_os_family == 'RedHat'
+  - selinux_state.stdout is search("Enforcing")
