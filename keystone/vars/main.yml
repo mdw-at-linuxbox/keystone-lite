@@ -1,13 +1,9 @@
 epel_repo_url: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
 epel_repo_gpg_key_url: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
 epel_repofile_path: /etc/yum.repos.d/epel.repo
-local_ca_package: http://mako/www/tmp/mdw-degu-cert-install-1-2.fc24.noarch.rpm
-local_ca_path: /etc/openldap/certs/degu-ca.crt
-openstack_repo_package: centos-release-openstack-ocata
+openstack_repo_package: centos-release-openstack-{{ keystone_version }}
 openstack_gpg_key_path: /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud
-openstack_repo_path: /etc/yum.repos.d/CentOS-OpenStack-ocata.repo
-host_certs: /home/mdw/t/thyestes-certs
-keystone_admin_password: 'something clever'
+openstack_repo_path: /etc/yum.repos.d/CentOS-OpenStack-{{ keystone_version }}.repo
 openstack_keystone_projects:
  - name: demo
    description: "Demo Project"
