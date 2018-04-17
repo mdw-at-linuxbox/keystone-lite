@@ -3,12 +3,31 @@
 
 - name: check if local ca configured
   stat: path={{ local_ca_path }}
+  check_mode: no
   register: local_ca_result
+
+- name: Compute ca package shortname
+  set_fact:
+    ca_package_name: "{{ local_ca_package | regex_replace('.*/', '') | regex_replace('\\.rpm$', '') }}"
+  changed_when: no
+  when: not local_ca_result.stat.exists
+
+- name: Fetch ca cert rpm (from repo that might not be remotely readable)
+  get_url:
+    url: "{{ local_ca_package }}"
+    dest: "/tmp/{{ ca_package_name }}.rpm"
+  delegate_to: localhost
+  when: not local_ca_result.stat.exists
+
+- name: Copy fetched ca cert rpm to target
+  copy:
+    src: "/tmp/{{ ca_package_name }}.rpm"
+    dest: "/tmp/{{ ca_package_name }}.rpm"
+  when: not local_ca_result.stat.exists
 
 - name: Install local ca cert
   yum:
-    name: "{{ local_ca_package }}"
+    name: "/tmp/{{ ca_package_name }}.rpm"
     state: present
   become: yes
-  register: present
   when: not local_ca_result.stat.exists
