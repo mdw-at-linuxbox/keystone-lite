@@ -2,3 +2,4 @@ inventory
 setup.retry
 ,*
 *.retry
+group_vars/*
