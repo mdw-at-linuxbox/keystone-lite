@@ -5,7 +5,7 @@
     dest: /etc/sysconfig/keystone
     create: yes
     block: |
-      HTTP_OPTS=-c /etc/keystone/private/{{ inventory_hostname_short }}.pem -k /etc/keystone/private/{{ inventory_hostname_short }}.key
+      HTTP_OPTS={{ '-c /etc/keystone/private/' + inventory_hostname_short + '.pem -k /etc/keystone/private/' + inventory_hostname_short + '.key' if host_certs is defined else ''}}
       PUBLIC_OPTS=-p 5000 -w /usr/bin/keystone-wsgi-public -l /var/log/keystone/public.log
       ADMIN_OPTS=-p 35357 -w /usr/bin/keystone-wsgi-admin -l /var/log/keystone/admin.log
       #KEYSTONE_OPTS=

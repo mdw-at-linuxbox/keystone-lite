@@ -6,12 +6,14 @@
     path: /etc/keystone/private/{{ inventory_hostname_short }}.pem
   become: yes
   register: host_cert
+  when: host_certs is defined
 
 - name: see if host key present
   stat:
     path: /etc/keystone/private/{{ inventory_hostname_short }}.key
   become: yes
   register: host_key
+  when: host_certs is defined
 
 - name: make keystone private directory for certs
   file:
@@ -21,7 +23,9 @@
     owner: root
     group: keystone
   become: yes
-  when: not host_cert.stat.exists or not host_key.stat.exists
+  when:
+  - host_certs is defined
+  - not host_cert.stat.exists or not host_key.stat.exists
 
 - name: untar host certs tarball
   unarchive:
@@ -32,5 +36,7 @@
     group: keystone
     mode: 0640
   become: yes
-  ignore_errors: "{{ ansible_check_mode }}"
-  when: not host_cert.stat.exists or not host_key.stat.exists
+  ignore_errors: ansible_check_mode
+  when:
+  - host_certs is defined
+  - not host_cert.stat.exists or not host_key.stat.exists

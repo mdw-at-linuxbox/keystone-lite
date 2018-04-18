@@ -5,3 +5,4 @@
     name: "{{ local_ca_package | regex_replace('.*/', '') | regex_replace('\\.rpm$', '') }}"
     state: absent
   become: yes
+  when: local_ca_package is defined
