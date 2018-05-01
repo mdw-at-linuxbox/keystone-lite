@@ -7,12 +7,35 @@ openstack_repo_path: /etc/yum.repos.d/CentOS-OpenStack-{{ keystone_version }}.re
 openstack_keystone_projects:
  - name: demo
    description: "Demo Project"
+ - name: atlas
+   description: "Atlas Project"
+ - name: steam
+   description: "Steam Project"
 openstack_keystone_users:
  - name: demo
    password: 'something clever'
+ - name: fred
+ - name: gladys
+ - name: herbert
+   password: 'something else'
+ - name: helen
+   password: 'must be something'
 openstack_keystone_roles:
  - name: user
+ - name: chief
 openstack_keystone_user_roles:
  - user: demo
    role: user
    project: demo
+ - user: fred
+   role: user
+   project: atlas
+ - user: gladys
+   role: chief
+   project: atlas
+ - user: herbert
+   role: chief
+   project: steam
+ - user: helen
+   role: user
+   project: steam
