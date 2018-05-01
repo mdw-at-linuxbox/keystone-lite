@@ -1,8 +1,8 @@
-OS_USERNAME={{ item.user.name }}
-OS_PASSWORD={{ default_passwords[ item.user.name ] | quote }}
-{% if project_for_users[item.user.name] is defined %}OS_PROJECT_NAME={{ project_for_users[item.user.name] }}
+OS_USERNAME={{ item.name }}
+OS_PASSWORD={{ default_passwords[ item.name ] | quote }}
+{% if project_for_users[item.name] is defined %}OS_PROJECT_NAME={{ project_for_users[item.name] }}
 {% endif %}OS_USER_DOMAIN_NAME=Default
-{% if project_for_users[item.user.name] is defined %}OS_PROJECT_DOMAIN_NAME=Default
+{% if project_for_users[item.name] is defined %}OS_PROJECT_DOMAIN_NAME=Default
 {% endif %}OS_AUTH_URL={{ keystone_method }}://{{ keystone_fqdn }}:5000/v3/
 OS_IDENTITY_API_VERSION=3
-export OS_USERNAME OS_PASSWORD {% if project_for_users[item.user.name] is defined %}OS_PROJECT_NAME{% endif %} OS_USER_DOMAIN_NAME {% if project_for_users[item.user.name] is defined and id_for_projects[project_for_users[item.user.name]] is defined %}OS_PROJECT_DOMAIN_NAME{% endif %} OS_AUTH_URL OS_IDENTITY_API_VERSION
+export OS_USERNAME OS_PASSWORD {% if project_for_users[item.name] is defined %}OS_PROJECT_NAME{% endif %} OS_USER_DOMAIN_NAME {% if project_for_users[item.name] is defined and id_for_projects[project_for_users[item.name]] is defined %}OS_PROJECT_DOMAIN_NAME{% endif %} OS_AUTH_URL OS_IDENTITY_API_VERSION

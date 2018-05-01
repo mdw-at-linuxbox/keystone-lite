@@ -44,7 +44,7 @@
 - name: generate default passwords
   tags: au
   set_fact:
-    default_passwords: "{{ default_passwords | default({}) | combine( {item.name: item.password if item.password is defined else
+    default_passwords: "{{ default_passwords | default({'admin':keystone_admin_password }) | combine( {item.name: item.password if item.password is defined else
 lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
  } ) }}"
   with_items: "{{ openstack_keystone_users }}"
@@ -115,13 +115,20 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
 - name: compute user projects
   tags: au
   set_fact:
-    project_for_users: "{{ project_for_users | default({}) | combine( {item.user: item.project } ) }}"
+    project_for_users: "{{ project_for_users | default({'admin': 'admin'}) | combine( {item.user: item.project } ) }}"
   with_items: "{{ openstack_keystone_user_roles }}"
 
 - name: report computed user projects
   tags: au
   debug:
     msg: "project_for_users={{ project_for_users }}"
+
+- name: make rcs for these users
+  tags: au
+  debug:
+    msg: "item={{ item }}"
+  with_items: "{{ (os_user_result.results | selectattr('changed') | map(attribute=('user')) | list) + [{'name': 'admin', 'domain_id': 'default'}] }}"
+# list | combine( {'name': 'admin', 'domain_id': 'default'} ) }}"
 
 - name: make out if neessary
   tags: au
@@ -135,7 +142,6 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
   tags: au
   template:
     src: openrc.j2
-    dest: "out/{{ item.user.name }}-openrc"
+    dest: "out/{{ item.name }}-openrc"
   delegate_to: localhost
-  when: item.changed
-  with_items: "{{ os_user_result.results }}"
+  with_items: "{{ (os_user_result.results | selectattr('changed') | map(attribute=('user')) | list) + [{'name': 'admin', 'domain_id': 'default'}] }}"
