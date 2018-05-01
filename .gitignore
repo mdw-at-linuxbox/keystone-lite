@@ -3,3 +3,4 @@ setup.retry
 ,*
 *.retry
 group_vars/*
+out
