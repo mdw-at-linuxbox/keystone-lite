@@ -3,7 +3,7 @@
 ##  I'm using shade 1.20 on degu. (degu:~mdw/wp/python.17)
 
 - name: add projects
-  tags: ap
+  tags: ['ap','au']
   os_project:
      auth: &awesome_stuff
         auth_url: "{{ keystone_method }}://{{ keystone_fqdn }}:5000/v3/"
@@ -20,26 +20,72 @@
      domain_id: "{{ item.domain_id | default('default') }}"
      enabled: "{{ item.enabled | default(omit) }}"
      validate_certs: yes
+  register: os_project_result
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_projects }}"
 
+- name: print project output
+  tags: ['ap','au']
+  debug:
+    msg: "os_project_result={{ os_project_result }}"
+
+- name: compute project ids for projects
+  tags: ['ap', 'au']
+  set_fact:
+    id_for_projects: "{{ id_for_projects | default({}) | combine( {item.project.name: item.project.domain_id } ) }}"
+  with_items: "{{ os_project_result.results }}"
+
+- name: computed project ids for projects
+  tags: ['ap','au']
+  debug:
+    msg: "os_project_result={{ id_for_projects }}"
+
+- name: generate default passwords
+  tags: au
+  set_fact:
+    default_passwords: "{{ default_passwords | default({}) | combine( {item.name: item.password if item.password is defined else
+lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
+ } ) }}"
+  with_items: "{{ openstack_keystone_users }}"
+
+- name: print my generated passwords 1
+  tags: au
+  debug:
+    msg: "dpws={{ default_passwords }}"
+
+- name: print my generated passwords 2
+  tags: au
+  debug:
+#    msg: "user={{ item.key }} password={{ item.value }}"
+#    msg: "user={{ item }}"
+    msg: "user={{ item }} pw={{ default_passwords[item] }}"
+  with_items: "{{ default_passwords }}"
+
 - name: add users
+  tags: au
   os_user:
-     auth:
+    auth:
       <<: *awesome_stuff
-     state: "{{ item.state | default(omit) }}"
-     name: "{{ item.name }}"
-     domain: "{{ item.domain | default('default') }}"
-     enabled: "{{ item.enabled | default(omit) }}"
-     password: "{{ item.password }}"
-     update_password: "{{ item.update_password | default('on_create') }}"
-     validate_certs: yes
+    state: "{{ item.state | default(omit) }}"
+    name: "{{ item.name }}"
+    domain: "{{ item.domain | default('default') }}"
+    enabled: "{{ item.enabled | default(omit) }}"
+    password: "{{ default_passwords[item.name] }}"
+    update_password: "{{ item.update_password | default('on_create') }}"
+    validate_certs: yes
+  register: os_user_result
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_users }}"
 
+- name: report on added users
+  tags: au
+  debug:
+    msg: "in={{ openstack_keystone_users }} out={{ os_user_result }}"
+
 - name: add roles
+  tags: au
   os_keystone_role:
      auth:
       <<: *awesome_stuff
@@ -51,6 +97,7 @@
   with_items: "{{ openstack_keystone_roles }}"
 
 - name: add users to roles
+  tags: au
   os_user_role:
      auth:
       <<: *awesome_stuff
@@ -64,3 +111,31 @@
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_user_roles }}"
+
+- name: compute user projects
+  tags: au
+  set_fact:
+    project_for_users: "{{ project_for_users | default({}) | combine( {item.user: item.project } ) }}"
+  with_items: "{{ openstack_keystone_user_roles }}"
+
+- name: report computed user projects
+  tags: au
+  debug:
+    msg: "project_for_users={{ project_for_users }}"
+
+- name: make out if neessary
+  tags: au
+  file:
+    path: out
+    recurse: yes
+    state: directory
+  delegate_to: localhost
+
+- name: make openrc files
+  tags: au
+  template:
+    src: openrc.j2
+    dest: "out/{{ item.user.name }}-openrc"
+  delegate_to: localhost
+  when: item.changed
+  with_items: "{{ os_user_result.results }}"
