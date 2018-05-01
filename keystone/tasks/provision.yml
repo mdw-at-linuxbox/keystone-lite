@@ -25,11 +25,6 @@
   delegate_to: localhost
   with_items: "{{ openstack_keystone_projects }}"
 
-- name: print project output
-  tags: ['ap','au']
-  debug:
-    msg: "os_project_result={{ os_project_result }}"
-
 - name: compute project ids for projects
   tags: ['ap', 'au']
   set_fact:
@@ -49,18 +44,12 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
  } ) }}"
   with_items: "{{ openstack_keystone_users }}"
 
-- name: print my generated passwords 1
-  tags: au
-  debug:
-    msg: "dpws={{ default_passwords }}"
-
-- name: print my generated passwords 2
-  tags: au
-  debug:
-#    msg: "user={{ item.key }} password={{ item.value }}"
-#    msg: "user={{ item }}"
-    msg: "user={{ item }} pw={{ default_passwords[item] }}"
-  with_items: "{{ default_passwords }}"
+#- name: print my generated passwords
+#  tags: au
+#  debug:
+#    msg: "user={{ item }} pw={{ default_passwords[item] }}"
+#  with_items: "{{ default_passwords }}"
+#
 
 - name: add users
   tags: au
@@ -78,11 +67,6 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_users }}"
-
-- name: report on added users
-  tags: au
-  debug:
-    msg: "in={{ openstack_keystone_users }} out={{ os_user_result }}"
 
 - name: add roles
   tags: au
@@ -117,11 +101,6 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
   set_fact:
     project_for_users: "{{ project_for_users | default({'admin': 'admin'}) | combine( {item.user: item.project } ) }}"
   with_items: "{{ openstack_keystone_user_roles }}"
-
-- name: report computed user projects
-  tags: au
-  debug:
-    msg: "project_for_users={{ project_for_users }}"
 
 - name: make rcs for these users
   tags: au
