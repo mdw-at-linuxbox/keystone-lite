@@ -13,7 +13,7 @@ openstack_keystone_projects:
    description: "Steam Project"
 openstack_keystone_users:
  - name: demo
-   password: 'something clever'
+   password: 'something dumb'
  - name: fred
  - name: gladys
  - name: herbert
