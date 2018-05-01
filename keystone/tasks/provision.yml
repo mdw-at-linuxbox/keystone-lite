@@ -145,3 +145,17 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
     dest: "out/{{ item.name }}-openrc"
   delegate_to: localhost
   with_items: "{{ (os_user_result.results | selectattr('changed') | map(attribute=('user')) | list) + [{'name': 'admin', 'domain_id': 'default'}] }}"
+
+- name: install clear-rc script
+  copy:
+    src: clear-rc
+    dest: "{{ ansible_user_dir }}/"
+    mode: 0755
+
+- name: install openrc scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_user_dir }}/"
+    mode: 0755
+  with_fileglob:
+    - "out/*"
