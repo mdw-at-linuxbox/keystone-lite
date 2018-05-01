@@ -1,21 +1,21 @@
 ---
 
 - name: compute keystone method
-  tags: ap
+  tags: [ 'ap', 'au' ]
   set_fact:
     keystone_method: "{{ 'https' if host_certs is defined else 'http' }}"
   changed_when: no
   check_mode: no
 
 - name: get real host fqdn
-  tags: ap
+  tags: [ 'ap', 'au' ]
   command: hostname --fqdn
   changed_when: no
   register: hostname_fqdn
   check_mode: no
 
 - name: compute real host fqdn
-  tags: ap
+  tags: [ 'ap', 'au' ]
   set_fact:
     keystone_fqdn: "{{ hostname_fqdn.stdout | trim }}"
   changed_when: no
