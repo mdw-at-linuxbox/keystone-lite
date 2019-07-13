@@ -24,17 +24,20 @@
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_projects }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: compute project ids for projects
   tags: ['ap', 'au']
   set_fact:
     id_for_projects: "{{ id_for_projects | default({}) | combine( {item.project.name: item.project.domain_id } ) }}"
   with_items: "{{ os_project_result.results }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: computed project ids for projects
   tags: ['ap','au']
   debug:
     msg: "os_project_result={{ id_for_projects }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: generate default passwords
   tags: au
@@ -67,6 +70,7 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_users }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: add roles
   tags: au
@@ -79,6 +83,7 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_roles }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: add users to roles
   tags: au
@@ -95,12 +100,14 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
   environment: { OS_IDENTITY_API_VERSION: 3 }
   delegate_to: localhost
   with_items: "{{ openstack_keystone_user_roles }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: compute user projects
   tags: au
   set_fact:
     project_for_users: "{{ project_for_users | default({'admin': 'admin'}) | combine( {item.user: item.project } ) }}"
   with_items: "{{ openstack_keystone_user_roles }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: make rcs for these users
   tags: au
@@ -124,6 +131,7 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
     dest: "out/{{ item.name }}-openrc"
   delegate_to: localhost
   with_items: "{{ (os_user_result.results | selectattr('changed') | map(attribute=('user')) | list) + [{'name': 'admin', 'domain_id': 'default'}] }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: install clear-rc script
   copy:
