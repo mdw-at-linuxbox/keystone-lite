@@ -1,6 +1,8 @@
 ---
 
+- include: make_out.yml
 - include: firewall.yml
 - include: hostcerts.yml
+- include: mariadb_cf.yml
 - include: keystone_cf.yml
 - include: systemd.yml

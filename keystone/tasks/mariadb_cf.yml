@@ -1,0 +1,73 @@
+---
+
+- name: Start mariadb
+  become: yes
+  systemd: name=mariadb.service state=started enabled=yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  register: start_mariadb
+  when: keystone_backend == 'mysql'
+
+- name: wait until mariadb started
+  wait_for:
+    port: 3306
+    host: "{{ ansible_default_ipv4.address }}"
+    delay: "{{ 10 if start_mariadb.changed else 0 }}"
+    sleep: 5
+  when: keystone_backend == 'mysql'
+
+- name: update mariadb root password for all root accounts
+  become: yes
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    password: "{{ mariadb_root_pass }}"
+    login_user: root
+    login_password: "{{ mariadb_root_pass }}"
+    check_implicit_admin: yes
+    priv: "*.*:ALL,GRANT"
+    state: present
+  with_items:
+    - localhost
+    - '%'
+  when: keystone_backend == 'mysql'
+  ignore_errors: "{{ ansible_check_mode }}"
+
+## cannot make "/root/my.cnf" until root pw is actually set.
+- name: make root my.cnf
+  become: yes
+  template: src=root.cnf.j2 dest=/root/.my.cnf mode=0600
+  when: keystone_backend == 'mysql'
+
+- name: remove anonymous user
+  become: yes
+  mysql_user: name='' host_all=yes state=absent login_user=root login_password="{{ mariadb_root_pass }}"
+  when: keystone_backend == 'mysql'
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: remove the test database
+  become: yes
+  mysql_db: db=test state=absent login_user=root login_password="{{ mariadb_root_pass }}"
+  when: keystone_backend == 'mysql'
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: flush privileges
+  become: yes
+  command: mysql -u root --execute="FLUSH PRIVILEGES"
+  when: keystone_backend == 'mysql'
+
+- name: add keystone user
+  become: yes
+  mysql_user: name=keystone host="{{ item }}" password="{{ keystone_db_password }}" state=present login_user=root login_password="{{ mariadb_root_pass }}"
+  with_items:
+    - localhost
+    - '%'
+  when: keystone_backend == 'mysql'
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: add keystone db
+  become: yes
+  mysql_db: db=keystone state=present login_user=root login_password="{{ mariadb_root_pass }}"
+  when: keystone_backend == 'mysql'
+  ignore_errors: "{{ ansible_check_mode }}"
+
+### XXX pass: mysql root pw

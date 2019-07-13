@@ -1,0 +1,10 @@
+---
+## make "out" directory so I can save generated passwords...
+
+- name: make out if neessary
+  tags: au
+  file:
+    path: out
+    recurse: yes
+    state: directory
+  delegate_to: localhost

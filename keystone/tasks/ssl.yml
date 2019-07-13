@@ -32,3 +32,4 @@
     state: present
   become: yes
   when: local_ca_path is defined and not local_ca_result.stat.exists
+  ignore_errors: "{{ ansible_check_mode }}"

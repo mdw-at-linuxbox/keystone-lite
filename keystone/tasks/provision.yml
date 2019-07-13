@@ -45,6 +45,7 @@
     default_passwords: "{{ default_passwords | default({'admin':keystone_admin_password }) | combine( {item.name: item.password if item.password is defined else
 lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
  } ) }}"
+    cacheable: yes
   with_items: "{{ openstack_keystone_users }}"
 
 #- name: print my generated passwords
@@ -115,14 +116,6 @@ lookup('password', '/dev/null length=15 chars=ascii_letters,digits')
     msg: "item={{ item }}"
   with_items: "{{ (os_user_result.results | selectattr('changed') | map(attribute=('user')) | list) + [{'name': 'admin', 'domain_id': 'default'}] }}"
 # list | combine( {'name': 'admin', 'domain_id': 'default'} ) }}"
-
-- name: make out if neessary
-  tags: au
-  file:
-    path: out
-    recurse: yes
-    state: directory
-  delegate_to: localhost
 
 - name: make openrc files
   tags: au

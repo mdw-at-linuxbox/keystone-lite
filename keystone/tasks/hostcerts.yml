@@ -36,7 +36,7 @@
     group: keystone
     mode: 0640
   become: yes
-  ignore_errors: ansible_check_mode
+  ignore_errors: "{{ ansible_check_mode }}"
   when:
   - host_certs is defined
   - not host_cert.stat.exists or not host_key.stat.exists

@@ -18,5 +18,4 @@
     state: present
   when:
   - keystone_frontend == 'apache'
-
-### XXX how to conditionalize ssl?
+  - host_certs is defined
