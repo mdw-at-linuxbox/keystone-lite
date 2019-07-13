@@ -2,8 +2,6 @@
 
 - name: Install cherrypy
   become: yes
-  yum: name="{{ item }}" state=present
-  with_items:
-  - python-cherrypy
+  yum: name=python-cherrypy state=present
   when:
   - keystone_frontend == 'cherrypy'
