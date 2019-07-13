@@ -6,9 +6,13 @@
 
 - include: openstack.yml
 
+- include: mariadb.yml
+
 - include: memcached.yml
 
 - include: cherrypy.yml
+
+- include: apache.yml
 
 - name: Install keystone service and client
   become: yes

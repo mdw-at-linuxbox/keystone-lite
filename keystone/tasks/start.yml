@@ -1,10 +1,20 @@
 ---
 
-- name: Start keystone
+- name: Start keystone using cherrypy
   become: yes
   systemd: name=keystone.target state=started enabled=yes
   ignore_errors: "{{ ansible_check_mode }}"
   register: start_keystone
+  when:
+  - keystone_frontend == 'cherrypy'
+
+- name: Start keystone using apache
+  become: yes
+  systemd: name=httpd.service state=started enabled=yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  register: start_keystone
+  when:
+  - keystone_frontend == 'apache'
 
 - name: wait until started
   wait_for:

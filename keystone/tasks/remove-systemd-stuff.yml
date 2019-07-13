@@ -11,3 +11,5 @@
         - /usr/lib/systemd/system/keystone-admin.service
         - /usr/lib/systemd/system/keystone-public.service
         - /usr/lib/systemd/system/keystone.target
+  when:
+  - keystone_frontend == 'cherrypy'

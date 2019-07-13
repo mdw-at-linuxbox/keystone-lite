@@ -10,6 +10,8 @@
       ADMIN_OPTS=-p 35357 -w /usr/bin/keystone-wsgi-admin -l /var/log/keystone/admin.log
       #KEYSTONE_OPTS=
   become: yes
+  when:
+  - keystone_frontend == 'cherrypy'
 
 - name: systemd scripts
   copy:
@@ -21,3 +23,5 @@
     - keystone-admin.service
     - keystone-public.service
     - keystone.target
+  when:
+  - keystone_frontend == 'cherrypy'

@@ -7,7 +7,23 @@
         - python-memcached
         - openstack-keystone
         - python-openstackclient
-        - python-cherrypy
-        - centos-release-openstack-ocata
+        - centos-release-openstack-{{ keystone_version }}
         state: absent
   become: yes
+
+- name: Remove cherrypy frontend for keystone
+  yum:
+        name:
+        - python-cherrypy
+  become: yes
+  when:
+  - keystone_frontend == 'cherrypy'
+
+- name: Remove apache frontend for keystone
+  yum:
+        name:
+        - httpd
+        - mod_wsgi
+  become: yes
+  when:
+  - keystone_frontend == 'apache'

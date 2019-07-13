@@ -6,6 +6,7 @@
 - include: packages.yml
 - include: cherrypy_wsgi.yml
 - include: configuration.yml
+- include: apache_cf.yml
 
 - meta: flush_handlers
 

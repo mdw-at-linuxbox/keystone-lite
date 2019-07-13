@@ -24,13 +24,23 @@
   become: yes
   when: keystone_paste_admin_token.rc == 0
 
-- name: set keystone db type, location
+- name: set keystone db type, location using sqlite
   lineinfile:
     dest: /etc/keystone/keystone.conf
     insertafter: '^\[database]$'
     line: connection = sqlite:////var/lib/keystone/keystone.db
   become: yes
   ignore_errors: "{{ ansible_check_mode }}"
+  when: keystone_backend == 'sqlite'
+
+- name: set keystone db type, location using mysql
+  lineinfile:
+    dest: /etc/keystone/keystone.conf
+    insertafter: '^\[database]$'
+    line: connection = mysql+pymysql://keystone:{{ keystone_db_pass }}@{{ ansible_hostname }}/keystone
+  become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: keystone_backend == 'mysql'
 
 - name: configure for fernet
   lineinfile:

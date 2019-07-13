@@ -4,6 +4,8 @@ epel_repofile_path: /etc/yum.repos.d/epel.repo
 openstack_repo_package: centos-release-openstack-{{ keystone_version }}
 openstack_gpg_key_path: /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud
 openstack_repo_path: /etc/yum.repos.d/CentOS-OpenStack-{{ keystone_version }}.repo
+keystone_backend: sqlite
+keystone_frontend: cherrypy
 openstack_keystone_projects:
  - name: demo
    description: "Demo Project"

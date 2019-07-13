@@ -1,0 +1,19 @@
+---
+
+- name: set apache servername
+  replace:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '(\n)#*(ServerName\b).*?$'
+    replace: '\1\2{{ ansible_fqdn }}'
+  become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: keystone_frontend == 'apache'
+
+- name: link wsgi conf file
+  file:
+    path: /etc/httpd/conf.d/wsgi-keystone.conf
+    src: /usr/share/keystone/wsgi-keystone.conf
+    state: link
+  become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: keystone_frontend == 'apache'

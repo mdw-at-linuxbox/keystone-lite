@@ -1,0 +1,22 @@
+---
+
+- name: Install apache
+  become: yes
+  yum:
+    name:
+    - httpd
+    - mod_wsgi
+    state: present
+  when:
+  - keystone_frontend == 'apache'
+
+- name: Install ssl for apache
+  become: yes
+  yum:
+    name:
+    - mod_ssl
+    state: present
+  when:
+  - keystone_frontend == 'apache'
+
+### XXX how to conditionalize ssl?

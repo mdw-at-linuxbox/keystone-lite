@@ -5,3 +5,5 @@
   yum: name="{{ item }}" state=present
   with_items:
   - python-cherrypy
+  when:
+  - keystone_frontend == 'cherrypy'
