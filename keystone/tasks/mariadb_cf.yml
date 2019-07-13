@@ -1,5 +1,9 @@
 ---
 
+## need better way to manage:
+## login_host
+## login_unix_socket
+
 - name: Start mariadb
   become: yes
   systemd: name=mariadb.service state=started enabled=yes
@@ -23,6 +27,7 @@
     password: "{{ mariadb_root_pass }}"
     login_user: root
     login_password: "{{ mariadb_root_pass }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
     check_implicit_admin: yes
     priv: "*.*:ALL,GRANT"
     state: present
@@ -40,13 +45,13 @@
 
 - name: remove anonymous user
   become: yes
-  mysql_user: name='' host_all=yes state=absent login_user=root login_password="{{ mariadb_root_pass }}"
+  mysql_user: name='' host_all=yes state=absent login_user=root login_password="{{ mariadb_root_pass }}" login_unix_socket=/var/lib/mysql/mysql.sock
   when: keystone_backend == 'mysql'
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: remove the test database
   become: yes
-  mysql_db: db=test state=absent login_user=root login_password="{{ mariadb_root_pass }}"
+  mysql_db: db=test state=absent login_user=root login_password="{{ mariadb_root_pass }}" login_unix_socket=/var/lib/mysql/mysql.sock
   when: keystone_backend == 'mysql'
   ignore_errors: "{{ ansible_check_mode }}"
 
@@ -57,7 +62,15 @@
 
 - name: add keystone user
   become: yes
-  mysql_user: name=keystone host="{{ item }}" password="{{ keystone_db_password }}" state=present login_user=root login_password="{{ mariadb_root_pass }}"
+  mysql_user:
+    name: keystone
+    host: "{{ item }}"
+    password: "{{ keystone_db_pass }}"
+    priv: keystone.*:ALL
+    state: present
+    login_user: root
+    login_password: "{{ mariadb_root_pass }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
   with_items:
     - localhost
     - '%'
@@ -66,7 +79,7 @@
 
 - name: add keystone db
   become: yes
-  mysql_db: db=keystone state=present login_user=root login_password="{{ mariadb_root_pass }}"
+  mysql_db: db=keystone state=present login_user=root login_password="{{ mariadb_root_pass }}" login_unix_socket=/var/lib/mysql/mysql.sock
   when: keystone_backend == 'mysql'
   ignore_errors: "{{ ansible_check_mode }}"
 
