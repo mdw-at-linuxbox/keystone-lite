@@ -5,6 +5,38 @@
 ##  remove the unit and you can't stop a unit
 ##  that has been removed (so we lose idempotency)
 
+- name: Check if mariadb service is running
+  become: yes
+  command: systemctl is-active -q mariadb.service
+  check_mode: no
+  failed_when: no
+  changed_when: no
+  register: mariadb_service
+
+- name: Stop mariadb
+  become: yes
+  systemd: name=mariadb.service state=stopped enabled=no
+  ignore_errors: "{{ ansible_check_mode }}"
+  when:
+  - keystone_backend == 'mysql'
+  - mariadb_service.rc == 0
+
+- name: Check if apache service is running
+  become: yes
+  command: systemctl is-active -q httpd.service
+  check_mode: no
+  failed_when: no
+  changed_when: no
+  register: httpd_service
+
+- name: stop apache
+  become: yes
+  systemd: name=httpd.service state=stopped enabled=no
+  ignore_errors: "{{ ansible_check_mode }}"
+  when:
+  - keystone_frontend == 'apache'
+  - httpd_service.rc == 0
+
 - name: validate keystone target link
   stat: path=/etc/systemd/system/multi-user.target.wants/keystone.target
   register: keystone_target_link
