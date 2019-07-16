@@ -21,15 +21,6 @@
   become: yes
   register: keystone_admin
 
-- name: add mariadb
-  firewalld:
-    port: 3306/tcp
-    permanent: true
-    state: enabled
-  become: yes
-  register: mariadb_port
-  when: keystone_backend == 'mysql'
-
 - name: reload firewalld
   command: firewall-cmd --reload
   become: yes
