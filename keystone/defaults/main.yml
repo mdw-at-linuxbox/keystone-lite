@@ -1,43 +1,121 @@
+#
+# d e f a u l t s
+#
+# you can override any of these in group_vars/all.yml
+#
+# sqlite and cherrypy are for "light weight" use;
+# use mysql/apache to model more standard deployment.
+#
+keystone_backend: sqlite
+keystone_frontend: cherrypy
+keystone_version: queens
+#
+# you should not need to change any of these,
 epel_repo_url: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
 epel_repo_gpg_key_url: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
 epel_repofile_path: /etc/yum.repos.d/epel.repo
 openstack_repo_package: centos-release-openstack-{{ keystone_version }}
 openstack_gpg_key_path: /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud
 openstack_repo_path: /etc/yum.repos.d/CentOS-OpenStack-{{ keystone_version }}.repo
-keystone_backend: sqlite
-keystone_frontend: cherrypy
+#
+# populate test data
+# standard openstack,
+#  demo admin service user
+# ceph radosgw integration,
+#  rgw swiftuser theman
+# guineapig users and projects
+#  acme wiley eagle darley
+#  alice bob carol donna erin frank george harry
+#  iolanthe john karen louis michael nancy olivia paul
+#
 openstack_keystone_projects:
  - name: demo
    description: "Demo Project"
- - name: atlas
-   description: "Atlas Project"
- - name: steam
-   description: "Steam Project"
+ - name: service
+   description: "Service Project"
+ - name: acme
+   description: "Acme Birdcage"
+ - name: wiley
+   description: "Wiley Semaphore"
+ - name: eagle
+   description: "Eagle Pagoda"
+ - name: darley
+   description: "Darley Simplex"
 openstack_keystone_users:
  - name: demo
-   password: 'something dumb'
- - name: fred
- - name: gladys
- - name: herbert
-   password: 'something else'
- - name: helen
-   password: 'must be something'
+ - name: rgw
+ - name: alice
+ - name: bob
+ - name: carol
+ - name: donna
+ - name: erin
+ - name: frank
+ - name: george
+ - name: harry
+ - name: iolanthe
+ - name: john
+ - name: karen
+ - name: louis
+ - name: michael
+ - name: nancy
+ - name: olivia
+ - name: paul
 openstack_keystone_roles:
  - name: user
- - name: chief
+ - name: swiftuser
+ - name: theman
 openstack_keystone_user_roles:
  - user: demo
    role: user
    project: demo
- - user: fred
-   role: user
-   project: atlas
- - user: gladys
-   role: chief
-   project: atlas
- - user: herbert
-   role: chief
-   project: steam
- - user: helen
-   role: user
-   project: steam
+ - user: rgw
+   role: admin
+   project: service
+ - user: alice
+   role: theman
+   project: acme
+ - user: bob
+   role: swiftuser
+   project: acme
+ - user: carol
+   role: swiftuser
+   project: acme
+ - user: donna
+   role: theman
+   project: wiley
+ - user: erin
+   role: swiftuser
+   project: wiley
+ - user: frank
+   role: swiftuser
+   project: wiley
+ - user: george
+   role: swiftuser
+   project: wiley
+ - user: harry
+   role: theman
+   project: eagle
+ - user: iolanthe
+   role: swiftuser
+   project: eagle
+ - user: john
+   role: swiftuser
+   project: eagle
+ - user: karen
+   role: swiftuser
+   project: eagle
+ - user: louis
+   role: theman
+   project: darley
+ - user: michael
+   role: swiftuser
+   project: darley
+ - user: nancy
+   role: swiftuser
+   project: darley
+ - user: olivia
+   role: swiftuser
+   project: darley
+ - user: paul
+   role: swiftuser
+   project: darley
