@@ -9,6 +9,12 @@
   ignore_errors: "{{ ansible_check_mode }}"
   when: keystone_frontend == 'apache'
 
+- name: see if wsgi config was copied already
+  stat:
+    path: /etc/httpd/conf.d/wsgi-keystone.conf
+  register: wsgi_config_exists
+  when: keystone_frontend == 'apache'
+
 - name: copy wsgi conf file
   copy:
     src: /usr/share/keystone/wsgi-keystone.conf
@@ -16,7 +22,21 @@
     remote_src: yes
   become: yes
   ignore_errors: "{{ ansible_check_mode }}"
-  when: keystone_frontend == 'apache'
+  when:
+  - keystone_frontend == 'apache'
+  - not wsgi_config_exists.stat.exists
+
+- name: see if wsgi conf file was mutated
+  command: egrep -q SSLEngine /etc/httpd/conf.d/wsgi-keystone.conf
+  become: yes
+  register: keystone_wsgi_configuration_has_ssl
+  failed_when: "keystone_wsgi_configuration_has_ssl.rc > 1"
+  check_mode: no
+  ignore_errors: "{{ ansible_check_mode }}"
+  changed_when: no
+  when:
+  - keystone_frontend == 'apache'
+  - wsgi_config_exists.stat.exists
 
 - name: mutate wsgi conf file for ssl
   replace:
@@ -28,6 +48,7 @@
   when:
   - keystone_frontend == 'apache'
   - host_certs is defined
+  - not wsgi_config_exists.stat.exists or keystone_wsgi_configuration_has_ssl.rc == 1
 
 #- name: mutate httpd configuration too
 #  file:
