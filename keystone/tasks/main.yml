@@ -3,6 +3,7 @@
 
 - include: selinux.yml
 - include: ssl.yml
+- include: make_out.yml
 - include: packages.yml
 - include: cherrypy_wsgi.yml
 - include: configuration.yml
