@@ -1,0 +1,9 @@
+---
+
+- name: remove my.cnf file
+  file:
+    path: /root/.my.cnf
+    state: absent
+  become: yes
+  when:
+  - keystone_backend == 'mysql'
