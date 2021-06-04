@@ -1,29 +1,5 @@
 ---
 
-- name: check for distribution case of admin_token_auth
-  command: egrep -q admin_token_auth /etc/keystone/keystone-paste.ini
-  become: yes
-  register: keystone_paste_admin_token
-  failed_when: "keystone_paste_admin_token.rc > 1"
-  check_mode: no
-  ignore_errors: "{{ ansible_check_mode }}"
-  changed_when: no
-
-- name: remove most admin_token_auth from keystone-paste.ini
-  replace:
-    dest: /etc/keystone/keystone-paste.ini
-    regexp: ' admin_token_auth '
-    replace: ' '
-  become: yes
-  when: keystone_paste_admin_token.rc == 0
-
-- name: remove rest of admin_token_auth from keystone-paste.ini
-  replace:
-    dest: /etc/keystone/keystone-paste.ini
-    regexp: '^.filter:admin_token_auth(?:.|\n)*#admin_token_auth\n\n'
-  become: yes
-  when: keystone_paste_admin_token.rc == 0
-
 - name: set keystone db type, location using sqlite
   lineinfile:
     dest: /etc/keystone/keystone.conf

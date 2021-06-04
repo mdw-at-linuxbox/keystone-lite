@@ -4,9 +4,9 @@
   yum:
         name:
         - memcached
-        - python-memcached
+        - python3-memcached
         - openstack-keystone
-        - python-openstackclient
+        - python3-openstackclient
         - centos-release-openstack-{{ keystone_version }}
         state: absent
   become: yes
@@ -14,7 +14,7 @@
 - name: Remove cherrypy frontend for keystone
   yum:
         name:
-        - python-cherrypy
+        - python3-cherrypy
   become: yes
   when:
   - keystone_frontend == 'cherrypy'
@@ -23,7 +23,7 @@
   yum:
         name:
         - httpd
-        - mod_wsgi
+        - python3-mod_wsgi
   become: yes
   when:
   - keystone_frontend == 'apache'

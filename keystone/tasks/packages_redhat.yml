@@ -19,6 +19,6 @@
   yum:
     name:
     - openstack-keystone
-    - python-openstackclient
+    - python3-openstackclient
     state: present
   ignore_errors: "{{ ansible_check_mode }}"

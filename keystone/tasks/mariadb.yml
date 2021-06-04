@@ -5,7 +5,7 @@
     name:
     - mariadb
     - mariadb-server
-    - python2-PyMySQL
+    - python3-PyMySQL
     state: present
   become: yes
   when: keystone_backend == 'mysql'

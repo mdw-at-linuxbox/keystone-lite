@@ -7,7 +7,7 @@
   yum:
     name:
     - memcached
-    - python-memcached
+    - python3-memcached
     state: present
 
 - name: Start memcached
