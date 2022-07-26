@@ -26,8 +26,20 @@
   - keystone_frontend == 'apache'
   - not wsgi_config_exists.stat.exists
 
-- name: see if wsgi conf file was mutated
-  command: egrep -q SSLEngine /etc/httpd/conf.d/wsgi-keystone.conf
+- name: see if wsgi conf file has 35357
+  shell: egrep -q 35357 /etc/httpd/conf.d/wsgi-keystone.conf &&
+  become: yes
+  register: keystone_wsgi_configuration_has_35357
+  failed_when: "keystone_wsgi_configuration_has_35357.rc > 1"
+  check_mode: no
+  ignore_errors: "{{ ansible_check_mode }}"
+  changed_when: no
+  when:
+  - keystone_frontend == 'apache'
+  - wsgi_config_exists.stat.exists
+
+- name: see if wsgi conf file has ssl
+  shell: egrep -q SSLEngine /etc/httpd/conf.d/wsgi-keystone.conf
   become: yes
   register: keystone_wsgi_configuration_has_ssl
   failed_when: "keystone_wsgi_configuration_has_ssl.rc > 1"
@@ -38,25 +50,10 @@
   - keystone_frontend == 'apache'
   - wsgi_config_exists.stat.exists
 
-- name: mutate wsgi conf file for ssl
-  replace:
-    path: /etc/httpd/conf.d/wsgi-keystone.conf
-    regexp: "(</Directory>\n)"
-    replace: "\\1    SSLEngine on\n    SSLCertificateFile /etc/keystone/private/{{ inventory_hostname_short }}.pem\n    SSLCertificateKeyFile /etc/keystone/private/{{ inventory_hostname_short }}.key\n    SSLCACertificateFile {{ local_ca_path }}\n"
+- name: mutate wsgi conf file
+  script: make-apache-cf.sh "{{ 1 if host_certs is defined else 0 }}"
   become: yes
   ignore_errors: "{{ ansible_check_mode }}"
   when:
   - keystone_frontend == 'apache'
-  - host_certs is defined
-  - not wsgi_config_exists.stat.exists or keystone_wsgi_configuration_has_ssl.rc == 1
-
-#- name: mutate httpd configuration too
-#  file:
-#    path: /etc/httpd/conf.d/ssl.conf
-#    regexp: "localhost"
-#    replace: "{{ ansible_hostname }}"
-#  become: yes
-#  ignore_errors: "{{ ansible_check_mode }}"
-#  when:
-#  - keystone_frontend == 'apache'
-#  - host_certs is defined
+  - not wsgi_config_exists.stat.exists or ((keystone_wsgi_configuration_has_ssl.rc == 1) == (host_certs is defined)) or keystone_wsgi_configuration_has_35357.rc == 1
