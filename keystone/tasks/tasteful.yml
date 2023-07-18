@@ -2,12 +2,14 @@
 
 - name: Install tasteful subset of the usual utilities
   yum:
-        name: [ dmidecode, dump, ed, eject, ftp, hdparm,
-          lsof, mailx, man, nc, parted, rsync, sos,
-          tcpdump, traceroute, time, wget, words,
-          pciutils,
-          lynx, mlocate, xterm, xauth, strace, tar, sysstat, net-tools,
-          bc, gdb, rcs, bind-utils, yum-utils ]
+        name: "{{ ['dmidecode',
+         'dump' if (ansible_distribution_version is version_compare('9','<')) else [],
+         'ed', 'eject', 'ftp', 'hdparm', 'lsof',
+         'mailx' if (ansible_distribution_version is version_compare('9','<')) else [],
+         'man', 'nc', 'parted', 'rsync', 'sos', 'tcpdump', 'traceroute', 'time',
+         'wget', 'words', 'pciutils', 'lynx', 'mlocate', 'xterm', 'xauth', 'strace',
+         'tar', 'sysstat', 'net-tools', 'bc', 'gdb', 'rcs', 'bind-utils',
+         'yum-utils'] | list | flatten }}"
         state: present
   become: yes
   tags: tasteful-rpms
