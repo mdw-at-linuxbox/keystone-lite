@@ -1,11 +1,12 @@
 cd /usr/share/keystone
 exec >/etc/httpd/conf.d/wsgi-keystone.conf
+H=`hostname -s`
 case "$1" in
 1)
 SSL_OVERRIDES='/<\/Directory>/a\
     SSLEngine on\
-    SSLCertificateFile /etc/keystone/private/wutubus.pem\
-    SSLCertificateKeyFile /etc/keystone/private/wutubus.key\
+    SSLCertificateFile /etc/keystone/private/'"$H"'.pem\
+    SSLCertificateKeyFile /etc/keystone/private/'"$H"'.key\
     SSLCACertificateFile /etc/openldap/certs/degu-ca.crt'
 	;;
 esac
