@@ -27,7 +27,7 @@
   - not wsgi_config_exists.stat.exists
 
 - name: see if wsgi conf file has 35357
-  shell: egrep -q 35357 /etc/httpd/conf.d/wsgi-keystone.conf &&
+  shell: egrep -q 35357 /etc/httpd/conf.d/wsgi-keystone.conf && true
   become: yes
   register: keystone_wsgi_configuration_has_35357
   failed_when: "keystone_wsgi_configuration_has_35357.rc > 1"
