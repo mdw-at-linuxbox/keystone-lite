@@ -1,19 +1,19 @@
 ---
 - meta: flush_handlers
 
-- include: selinux.yml
-- include: ssl.yml
-- include: make_out.yml
-- include: packages.yml
-- include: cherrypy_wsgi.yml
-- include: configuration.yml
-- include: apache_cf.yml
+- import_tasks: selinux.yml
+- import_tasks: ssl.yml
+- import_tasks: make_out.yml
+- import_tasks: packages.yml
+- import_tasks: cherrypy_wsgi.yml
+- import_tasks: configuration.yml
+- import_tasks: apache_cf.yml
 
 - meta: flush_handlers
 
-- include: bootstrap.yml
+- import_tasks: bootstrap.yml
 
-- include: start.yml
-- include: provision.yml
+- import_tasks: start.yml
+- import_tasks: provision.yml
 
-#- include: tenants.yml
+#- import_tasks: tenants.yml

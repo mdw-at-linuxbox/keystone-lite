@@ -1,18 +1,18 @@
 ---
 
-- include: tasteful.yml
+- import_tasks: tasteful.yml
 
-- include: epel.yml
+- import_tasks: epel.yml
 
-- include: openstack.yml
+- import_tasks: openstack.yml
 
-- include: mariadb.yml
+- import_tasks: mariadb.yml
 
-- include: memcached.yml
+- import_tasks: memcached.yml
 
-- include: cherrypy.yml
+- import_tasks: cherrypy.yml
 
-- include: apache.yml
+- import_tasks: apache.yml
 
 - name: Install keystone service and client
   become: yes

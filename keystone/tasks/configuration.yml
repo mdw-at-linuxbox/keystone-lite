@@ -1,7 +1,7 @@
 ---
 
-- include: firewall.yml
-- include: hostcerts.yml
-- include: mariadb_cf.yml
-- include: keystone_cf.yml
-- include: systemd.yml
+- import_tasks: firewall.yml
+- import_tasks: hostcerts.yml
+- import_tasks: mariadb_cf.yml
+- import_tasks: keystone_cf.yml
+- import_tasks: systemd.yml

@@ -1,13 +1,13 @@
 ---
 # restore machine to a (mostly) pristine state
 
-- include: stop.yml
-- include: remove-my-cnf.yml
-- include: remove-systemd-stuff.yml
-- include: restore-firewall.yml
-- include: erase-keystone-stuff.yml
-- include: erase-ca-cert.yml
-- include: erase-keystone-iam.yml
-- include: erase-python-dependencies.yml
-- include: erase-epel-too.yml
+- import_tasks: stop.yml
+- import_tasks: remove-my-cnf.yml
+- import_tasks: remove-systemd-stuff.yml
+- import_tasks: restore-firewall.yml
+- import_tasks: erase-keystone-stuff.yml
+- import_tasks: erase-ca-cert.yml
+- import_tasks: erase-keystone-iam.yml
+- import_tasks: erase-python-dependencies.yml
+- import_tasks: erase-epel-too.yml
 #- meta: flush_handlers
