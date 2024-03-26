@@ -27,9 +27,10 @@
   when: local_ca_path is defined and not local_ca_result.stat.exists
 
 - name: Install local ca cert
-  yum:
+  package:
     name: "/tmp/{{ ca_package_name }}.rpm"
     state: present
+    disable_gpg_check: yes
   become: yes
   when: local_ca_path is defined and not local_ca_result.stat.exists
   ignore_errors: "{{ ansible_check_mode }}"
